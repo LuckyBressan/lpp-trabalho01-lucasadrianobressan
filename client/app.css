@@ -1,0 +1,145 @@
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 580px;
+  margin: 24px auto;
+  padding: 0 12px;
+}
+.cartao,
+.painel {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+}
+.painel p {
+  margin: 6px 0;
+}
+button {
+  padding: 8px 14px;
+  margin-right: 6px;
+  border-radius: 6px;
+  border: 1px solid #888;
+  cursor: pointer;
+}
+input {
+  padding: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.avisos {
+  list-style: none;
+  padding: 0;
+}
+.avisos li {
+  padding: 6px 10px;
+  margin: 4px 0;
+  border-radius: 6px;
+  background: #eef;
+}
+.avisos li.ok {
+  background: #dfd;
+}
+.avisos li.erro {
+  background: #fdd;
+}
+#jogo {
+  margin: 12px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  line-height: 0;
+}
+#jogo canvas {
+  width: 100% !important;
+  height: auto !important;
+  image-rendering: pixelated;
+}
+.eventos {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 12px 0;
+  background: #fafafa;
+}
+.eventos h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.eventos .legenda {
+  font-size: 12px;
+  margin: 4px 0 8px;
+}
+.eventos label {
+  font-size: 12px;
+  display: block;
+  margin-bottom: 6px;
+}
+.eventos input {
+  width: auto;
+  margin: 0 6px 0 0;
+}
+.eventos ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+}
+.eventos li {
+  padding: 4px 8px;
+  margin: 4px 0;
+  border-left: 4px solid #999;
+  background: #fff;
+}
+.eventos li.pedido {
+  border-color: #1976d2;
+}
+.eventos li.fato {
+  border-color: #2e7d32;
+}
+.eventos li.recusa {
+  border-color: #c62828;
+}
+.eventos .causa,
+.eventos .dados {
+  color: #666;
+}
+.eventos .reacao {
+  color: #1b5e20;
+}
+.eventos .hora {
+  color: #888;
+}
+.eventos .vazio {
+  font-size: 12px;
+  color: #888;
+}
+.badge {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  margin-right: 6px;
+}
+.badge.emit {
+  background: #1976d2;
+}
+.badge.on {
+  background: #2e7d32;
+}
+.chip {
+  display: inline-block;
+  background: #eee;
+  border-radius: 10px;
+  padding: 1px 8px;
+  margin: 0 4px 4px 0;
+  font-size: 11px;
+}
+footer {
+  margin-top: 32px;
+  font-size: 13px;
+  color: #666;
+}
