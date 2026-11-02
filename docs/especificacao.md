@@ -11,7 +11,7 @@
 * Recurso primário e recurso refinado: néctar e mel
 * Custo de uma construção: 50 néctar
 * Tempo da obra: 8 segundos
-* Limite de trabalhadores: 2 apicultores&#x20;
+* Limite de trabalhadores: 2 apicultores
 * Intervalo e quantidade da produção automática: + 10 néctar a cada 5 s, com 1 colmeia são +15 néctar e + 2 mel a cada 5s
 * O que muda quando uma obra termina: libera o apicultor, + 5 néctar por coleta e cada colmeia gera +2 mel por coleta
 * Qual o evento do mercado: O jogador vende 10 mel e a vila ganha 30 moedas; Se não tiver mel o suficiente, é recusado a venda
