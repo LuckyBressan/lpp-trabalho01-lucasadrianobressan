@@ -12,6 +12,7 @@ createApp({
       moeda: 0,
       apicultores: 0,
       limite: 0,
+      limite_colmeia: 0,
       producao: 0,
       producao_mel: 0,
       intervalo: 0,

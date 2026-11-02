@@ -1,6 +1,6 @@
 import socketio
 
-from constantes import CUSTO_COLMEIA, INTERVALO_PRODUCAO, TEMPO_OBRA, LIMITE_APICULTORES, MEL_POR_VENDA, MOEDA_POR_VENDA
+from constantes import CUSTO_COLMEIA, INTERVALO_PRODUCAO, TEMPO_OBRA, LIMITE_APICULTOR, LIMITE_COLMEIA, MEL_POR_VENDA, MOEDA_POR_VENDA
 from constantes import Fase, Papel
 
 from pathlib import Path
@@ -27,7 +27,8 @@ estado = {
     "mel": 0,
     "moeda": 0,
     "apicultores": 0,  # ocupados agora
-    "limite": LIMITE_APICULTORES,  # máximo de apicultores
+    "limite": LIMITE_APICULTOR,  # máximo de apicultores
+    "limite_colmeia": LIMITE_COLMEIA, # limite baseado no espaço de resolução das colmeias no tilemap
     "producao": 10,  # nectar produzidos a cada INTERVALO
     "producao_mel": 0, # mel produzido a cada INTERVALO, depende da construção de colmeia
     "intervalo": INTERVALO_PRODUCAO, # em segundos
@@ -97,12 +98,15 @@ async def construir(sid, dados=None):
         motivo = "Nectar insuficiente"
     elif estado["apicultores"] >= estado["limite"]:
         motivo = "Sem apicultor livre"
+    elif estado["concluidas"] + estado["em_obra"] >= estado["limite_colmeia"]:
+        motivo = "Limite máximo de colmeias atingido"
     else:
         motivo = None
 
     if motivo:
         await recusar(sid, motivo, pedido) # só quem pediu recebe
         return
+
     estado["nectar"] -= CUSTO_COLMEIA
     estado["apicultores"] += 1
     estado["em_obra"] += 1

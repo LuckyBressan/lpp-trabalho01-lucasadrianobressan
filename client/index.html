@@ -10,7 +10,7 @@
     <div id="app">
       <!-- Tela de entrada -->
       <section v-if="!conectado" class="cartao">
-        <h1>🏘️ Apiário em Tempo Real</h1>
+        <h1>🐝🍯 Apiário em Tempo Real</h1>
         <input v-model="nome" placeholder="Seu nome" />
         <button @click="entrar('mestre')">Entrar como Mestre</button>
         <button @click="entrar('jogador')">Entrar como Jogador</button>
@@ -18,7 +18,7 @@
 
       <!-- Tela do apiário -->
       <main v-else>
-        <h1>🏘️ Apiário e mercado</h1>
+        <h1>🐝🍯 Apiário e mercado</h1>
         <p>
           {{ papel }}: <strong>{{ nome || "Anônimo" }}</strong> · Temporada:
           <strong>{{ estado.fase }}</strong>
@@ -33,12 +33,9 @@
             }}/min)
           </p>
           <p>
-            🍯 Mel: <strong>{{ estado.mel }}</strong> (+{{ melPorMinuto
-            }}/min)
+            🍯 Mel: <strong>{{ estado.mel }}</strong> (+{{ melPorMinuto }}/min)
           </p>
-          <p>
-            🪙 Moedas: <strong>{{ estado.moeda }}</strong>
-          </p>
+          <p>🪙 Moedas: <strong>{{ estado.moeda }}</strong></p>
           <p>
             👷 Apicultores: {{ estado.apicultores }}/{{ estado.limite }}
             <progress
@@ -46,8 +43,10 @@
               :max="estado.limite"></progress>
           </p>
           <p>
-            🐝🍯 Colmeias: {{ estado.concluidas }} concluídas, {{
-            estado.em_obra }} em obra
+            🐝🍯 Colmeias: {{ estado.concluidas }}/{{ estado.limite_colmeia }}
+            <progress
+              :value="estado.concluidas"
+              :max="estado.limite_colmeia"></progress>
           </p>
         </section>
 
