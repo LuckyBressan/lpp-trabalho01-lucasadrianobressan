@@ -113,12 +113,17 @@ createApp({
         jogo.vilaIniciada();
       });
 
+      ouvir("construcao.iniciada", "mostra o canteiro de obras", (d) => {
+        atualizar(d);
+        avisar(d.por + " iniciou uma obra");
+        jogo.obraIniciada(d.estado);
+      });
+
 
 
       // ===== ESCUTAS (on): o cliente reage aos FATOS do servidor =====
       // ouvir(evento, "o que o cliente faz ao receber", função)
-      // ETAPA 2: ouvir "vila.iniciada"         -> jogo.vilaIniciada()
-      // ETAPA 3: ouvir "construcao.iniciada"   -> jogo.obraIniciada(...)
+
       // ETAPA 4: ouvir "operacao.recusada"     -> jogo.recusado(...)
       // ETAPA 5: ouvir "recurso.produzido"     -> jogo.recursoProduzido(...)
       //          e "construcao.concluida"      -> jogo.obraConcluida(...)
@@ -131,7 +136,7 @@ createApp({
       pedir("vila.abertura_solicitada");
     }
     function construir() {
-      // ETAPA 3: pedir "construcao.solicitada"
+      pedir("construcao.solicitada");
     }
     function encerrarVila() {
       // ETAPA 6: pedir "vila.encerramento_solicitado"
