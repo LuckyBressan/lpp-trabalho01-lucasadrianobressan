@@ -119,12 +119,13 @@ createApp({
         jogo.obraIniciada(d.estado);
       });
 
-
+      ouvir("operacao.recusada", "avisa o motivo e a tela treme", (d) => {
+        avisar(d.motivo, "erro");
+        jogo.recusado(d.motivo);
+      });
 
       // ===== ESCUTAS (on): o cliente reage aos FATOS do servidor =====
       // ouvir(evento, "o que o cliente faz ao receber", função)
-
-      // ETAPA 4: ouvir "operacao.recusada"     -> jogo.recusado(...)
       // ETAPA 5: ouvir "recurso.produzido"     -> jogo.recursoProduzido(...)
       //          e "construcao.concluida"      -> jogo.obraConcluida(...)
       // ETAPA 6: ouvir "vila.encerrada"        -> jogo.vilaEncerrada()
