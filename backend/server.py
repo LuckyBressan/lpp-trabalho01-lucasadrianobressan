@@ -1,6 +1,6 @@
 import socketio
 
-from constantes import CUSTO_COLMEIA, INTERVALO_PRODUCAO, TEMPO_OBRA
+from constantes import CUSTO_COLMEIA, INTERVALO_PRODUCAO, TEMPO_OBRA, Fase, Papel
 
 from pathlib import Path
 
@@ -19,8 +19,9 @@ app = socketio.ASGIApp(
     },
 )
 
+# @todo depois será trocado as chaves para corresponder ao meu tipo de vila
 estado = {
-    "fase": "aguardando",  # aguardando -> aberta -> encerrada
+    "fase": Fase.AGUARDANDO,  # aguardando -> aberta -> encerrada
     "toras": 150,
     "trabalhadores": 0,  # ocupados agora
     "limite": 2,  # máximo de apicultores
@@ -36,6 +37,8 @@ jogadores = {}
 
 
 def fato(causa, **extras):
+    """Monta o payload de um FATO: o estado atual, a CAUSA (o evento ou o
+     temporizador que gerou o fato) e dados extras."""
     return {"estado": dict(estado), "causa": causa, **extras}
 
 
@@ -44,13 +47,12 @@ async def connect(sid, environ, auth):
     auth = auth or {}
     jogadores[sid] = {
         "nome": auth.get("nome", "Anônimo"),
-        "papel": auth.get("papel", "jogador"),
+        "papel": auth.get("papel", Papel.JOGADOR),
     }
+    # servidor -> UM cliente: entrega o estado atual
     await sio.emit("estado.sincronizado", fato("conexao"), to=sid)
 
 
 @sio.event
 async def disconnect(sid):
     jogadores.pop(sid, None)
-
-
