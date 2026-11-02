@@ -135,10 +135,14 @@ createApp({
         jogo.obraConcluida(d.estado);
       });
 
+      ouvir("vila.encerrada", "escurece a vila e bloqueia novas ações", (d) => {
+        atualizar(d);
+        avisar("Temporada encerrada.");
+        jogo.vilaEncerrada();
+      });
+
       // ===== ESCUTAS (on): o cliente reage aos FATOS do servidor =====
       // ouvir(evento, "o que o cliente faz ao receber", função)
-
-      // ETAPA 6: ouvir "vila.encerrada"        -> jogo.vilaEncerrada()
     }
 
     // ===== PEDIDOS (emit): o cliente PEDE algo ao servidor =====
@@ -150,7 +154,7 @@ createApp({
       pedir("construcao.solicitada");
     }
     function encerrarVila() {
-      // ETAPA 6: pedir "vila.encerramento_solicitado"
+      pedir("vila.encerramento_solicitado");
     }
 
     return {
