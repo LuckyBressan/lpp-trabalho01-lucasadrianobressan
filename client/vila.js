@@ -140,7 +140,7 @@ function criarJogo() {
       obra.fundo.destroy();
       obra.barra.destroy();
       this.criarCasa(obra.x, obra.y);
-      this.flutuar("🏠 Obra concluída!", obra.x, obra.y - 18, "#1b5e20");
+      this.flutuar("🐝🍯 Colmeia concluída!", obra.x, obra.y - 18, "#1b5e20");
     }
     recursoProduzido(estado) {
       // recurso.produzido

@@ -117,28 +117,33 @@ createApp({
 
       // ===== ESCUTAS (on): o cliente reage  aos FATOS do servidor =====
 
+      // Fato só para este cliente, ao conectar: copia o estado e desenha o apiário como está agora
       ouvir("estado.sincronizado", "guarda o estado e desenha o apiário e mercado", (d) => {
         atualizar(d);
         jogo.mostrarEstado(d.estado);
       });
 
+      // Fato para todos: o Mestre abriu a temporada, então troca a faixa e libera as ações
       ouvir("apiario.iniciado", "muda a faixa para temporada aberta", (d) => {
         atualizar(d);
         avisar("A temporada começou!", "ok");
         jogo.vilaIniciada();
       });
 
+      // Fato para todos: alguém começou uma colmeia, então o néctar e os apicultores mudam em todas as abas
       ouvir("colmeia.iniciada", "mostra a colmeia sendo construída", (d) => {
         atualizar(d);
-        avisar(d.por + " iniciou uma obra");
+        avisar(d.por + " começou a montar uma colmeia");
         jogo.obraIniciada(d.estado);
       });
 
+      // Fato só para quem pediu: o servidor negou o pedido; o estado não muda, só mostra o motivo
       ouvir("operacao.recusada", "avisa o motivo e a tela treme", (d) => {
         avisar(d.motivo, "erro");
         jogo.recusado(d.motivo);
       });
 
+      // Fato para todos, causado pelo temporizador do servidor: ninguém clicou, o néctar e o mel subiram
       ouvir(
         "recurso.produzido",
         "atualiza o nectar e mel, mostra o +N",
@@ -148,12 +153,14 @@ createApp({
         },
       );
 
+      // Fato para todos, causado pelo temporizador da obra: o apicultor fica livre e a produção aumenta
       ouvir("colmeia.concluida", "exibe a colmeia pronta", (d) => {
         atualizar(d);
-        avisar("Obra de " + d.por + " concluída! A produção aumentou.", "ok");
+        avisar("Colmeia de " + d.por + " pronta! A produção aumentou.", "ok");
         jogo.obraConcluida(d.estado);
       });
 
+      // Fato para todos: a temporada acabou, então escurece o apiário e os próximos pedidos serão recusados
       ouvir(
         "apiario.encerrado",
         "escurece o apiário e bloqueia novas ações",
@@ -164,6 +171,7 @@ createApp({
         },
       );
 
+      // Fato para todos: o mel e as moedas são compartilhados, então todas as abas atualizam o mercado
       ouvir(
         "mel.vendido",
         "vende o mel produzido e ganha moedas em troca",
@@ -176,18 +184,22 @@ createApp({
     }
 
     // ===== PEDIDOS (emit): o cliente PEDE algo ao servidor =====
+    // Pedido do Mestre: só PEDE; a tela só muda quando chegar o fato apiario.iniciado
     function abrirVila() {
       pedir("apiario.abertura_solicitada");
     }
 
+    // Pedido do Jogador: quem decide se pode construir é o servidor (fonte da verdade)
     function construir() {
       pedir("colmeia.solicitada");
     }
 
+    // Pedido de venda no mercado: a resposta vem como mel.vendido (todos) ou operacao.recusada (só eu)
     function vender() {
       pedir("mel.venda_solicitada");
     }
 
+    // Pedido do Mestre para encerrar: a tela só escurece quando chegar o fato apiario.encerrado
     function encerrarVila() {
       pedir("apiario.encerramento_solicitado");
     }
