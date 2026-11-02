@@ -124,10 +124,20 @@ createApp({
         jogo.recusado(d.motivo);
       });
 
+      ouvir("recurso.produzido", "atualiza as toras e mostra o +N", (d) => {
+        atualizar(d);
+        jogo.recursoProduzido(d.estado);
+      });
+
+      ouvir("construcao.concluida", "transforma o canteiro em casa", (d) => {
+        atualizar(d);
+        avisar("Obra de " + d.por + " concluída! A produção aumentou.", "ok");
+        jogo.obraConcluida(d.estado);
+      });
+
       // ===== ESCUTAS (on): o cliente reage aos FATOS do servidor =====
       // ouvir(evento, "o que o cliente faz ao receber", função)
-      // ETAPA 5: ouvir "recurso.produzido"     -> jogo.recursoProduzido(...)
-      //          e "construcao.concluida"      -> jogo.obraConcluida(...)
+
       // ETAPA 6: ouvir "vila.encerrada"        -> jogo.vilaEncerrada()
     }
 

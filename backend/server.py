@@ -75,6 +75,7 @@ async def abrir_vila(sid, dados=None):
         await recusar(sid, "A temporada já foi aberta", pedido)
         return
     estado["fase"] = Fase.ABERTA
+    sio.start_background_task(producao)
     await sio.emit("vila.iniciada", fato(pedido))   # para todos
 
 
@@ -99,6 +100,25 @@ async def construir(sid, dados=None):
     estado["em_obra"] += 1
     nome = jogadores[sid]["nome"]
     await sio.emit("construcao.iniciada", fato(pedido, por=nome))
+    sio.start_background_task(obra, nome) 
 
 
+async def producao():
+    while estado["fase"] == "aberta":
+        await sio.sleep(INTERVALO_PRODUCAO)
+        if estado["fase"] != "aberta":
+            break
+        estado["toras"] += estado["producao"]
+        await sio.emit("recurso.produzido", fato("temporizador"))
 
+
+async def obra(nome):
+    await sio.sleep(TEMPO_OBRA)
+    if estado["fase"] != "aberta":
+        return
+    estado["trabalhadores"] -= 1
+    estado["em_obra"] -= 1
+    estado["concluidas"] += 1
+    estado["producao"] += 5 # cada obra concluída aumenta a produção
+    causa = "construcao.iniciada (temporizador)"
+    await sio.emit("construcao.concluida", fato(causa, por=nome))
