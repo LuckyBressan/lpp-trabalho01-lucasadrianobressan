@@ -55,7 +55,8 @@ Abra **<http://localhost:8000>** no navegador (não abra o arquivo direto com `f
 5. **Passagem do tempo:** sem ninguém clicar, o néctar sobe a cada 5 s (`recurso.produzido`, causa: temporizador). Depois de 8 s a colmeia fica pronta (`colmeia.concluida`), e a partir daí o mel também sobe +2 por colmeia a cada coleta.
 6. **Mercado:** com menos de 10 de mel, **Vender mel** é recusado só para quem pediu. Com 10 ou mais, `mel.vendido` chega para todos: −10 mel e +30 moedas.
 7. **Disputa (3 abas):** Mestre, Jogador A e Jogador B. Com 1/2 apicultores ocupados, A e B clicam em **Construir** quase juntos. Só um recebe `colmeia.iniciada`. O outro recebe "Sem apicultor livre", e o limite nunca passa de 2/2.
-8. **Encerrar:** o Mestre clica em **Encerrar temporada**. O apiário escurece, a produção para e qualquer pedido novo é recusado.
+8. **Limite de colmeias:** o apiário comporta 6 colmeias (prontas + em montagem). Ao pedir a sétima, só quem pediu recebe "Limite máximo de colmeias atingido".
+9. **Encerrar:** o Mestre clica em **Encerrar temporada**. O apiário escurece, a produção para e qualquer pedido novo é recusado.
 
 ## Perguntas
 
@@ -82,15 +83,11 @@ O servidor também escuta os eventos de sistema `connect` e `disconnect` do Sock
 
 Essas mesmas descrições você pode acompanhar no arquivo de `especificacoes.md` que redigi e fiz commit na "etapa 0"
 
-
-
 **2. Como o sistema sabe quando deve atualizar os outros jogadores?**
 
 O cliente nunca muda o estado por conta própria e nunca pergunta ao servidor se algo mudou. Toda mudança acontece no servidor, dentro de um handler de pedido ou de um temporizador. Logo depois de alterar o estado, o servidor emite um fato com `sio.emit(...)` **sem** **`to=`**, e esse fato chega a todos os clientes conectados. Cada cliente escuta esse fato com `ouvir(...)` e redesenha a tela com o estado que veio junto. Quando só uma pessoa precisa saber, o servidor usa `to=sid`: é o caso da recusa (`operacao.recusada`) e do estado inicial (`estado.sincronizado`).
 
 Como a ideia era simular um jogo e num jogo tudo é "atualizado para todos", optei em todos os eventos atualizar para todos os jogadores, menos esse de `operacao.recusada` e `estado.sincronizado` (em um jogo real isto seria chamado de evento client-side, ou outro nome)
-
-
 
 **3. Que parte do código mostra claramente o uso do paradigma orientado a eventos?**
 
@@ -104,7 +101,8 @@ Usei o Claude (Anthropic) como apoio:
 
 * para revisar a especificação e o código ao fim de cada etapa (por exemplo, corrigir ortograficamente algo ou falta de informação);
 * para gerar a arte do apiário: as novas peças do tileset, os sprites da colmeia e o mapa com o mercado (ver `client/assets/LEIA-ME.txt`), como achei meu tema relativamente específico, achei mais fácil solicitar geração, evitando inclusive problemas com direitos autorais;
-* para redigir partes deste README a partir do código.
+* para redigir partes deste README a partir do código;
+* para os ajustes finais da revisão: comentários nos pontos de emissão e escuta, uso dos enums `Fase`/`Papel` em todo o servidor (busy work).
 
 O código do servidor e do cliente foi escrito por mim, seguindo o Guia de Implementação e adaptando ao apiário, afinal o código era muito simples... pretendo melhorar outras coisas conforme a seção "melhorias futuras".
 
@@ -112,6 +110,8 @@ O código do servidor e do cliente foi escrito por mim, seguindo o Guia de Imple
 
 * **Mercado:** evento próprio `mel.venda_solicitada` → `mel.vendido` (−10 mel, +30 moedas), com recusa quando falta mel.
 * **Recurso refinado:** cada colmeia pronta passa a gerar +2 de mel por coleta.
+* **Limite de colmeias:** no máximo 6 colmeias no apiário, com recusa própria. Fiz isso, pois na tela do jogo só cabem 6 colmeias mesmo
+* **Contadores por evento** no Painel de eventos, era obrigatório só para duplas, mas o guia já tinha a estrutura pré-pronta, só tive o trabalho de listar em tela.
 * **Mapa e sprites personalizados:** campo de flores, lagoa, colmeias e mercado com duas bancas.
 * **Organização:** servidor em `backend/`, regras em `constantes.py` com enums (`Fase`, `Papel`) e cliente separado em `index.html`, `app.js`, `vila.js` e `app.css`.
 

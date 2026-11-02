@@ -3,15 +3,13 @@
 **Integrante:** Lucas Adriano dos Santos Bressan
 **Tipo de vila (sorteio):** Apiário e Mercado
 
-> Escreva este documento ANTES do código e faça o commit antes da Etapa 0.
-> Descreva o comportamento na linguagem da vila. Não cite tecnologia.
-
 ## 1. Regras da vila
 
 * Recurso primário e recurso refinado: néctar e mel
 * Custo de uma construção: 50 néctar
 * Tempo da obra: 8 segundos
 * Limite de trabalhadores: 2 apicultores
+* Limite de colmeias: 6 no apiário (somando as prontas e as em montagem); acima disso o pedido é recusado
 * Intervalo e quantidade da produção automática: + 10 néctar a cada 5 s, com 1 colmeia são +15 néctar e + 2 mel a cada 5s
 * O que muda quando uma obra termina: libera o apicultor, + 5 néctar por coleta e cada colmeia gera +2 mel por coleta
 * Qual o evento do mercado: O jogador vende 10 mel e a vila ganha 30 moedas; Se não tiver mel o suficiente, é recusado a venda
@@ -37,11 +35,11 @@
 
 ### Recusa
 
-Dado que o apiário tem 5 mel refinados, quando um Jogador emite `mel.venda_solicitada`, então o servidor emite `operacao.recusada` apenas para ele, com o motivo de que falta a quantidade específica de 10 mel para permitir a venda e méis continuam sendo refinados normalmente
+Dado que o apiário tem 5 de mel, quando um Jogador emite `mel.venda_solicitada`, então o servidor emite `operacao.recusada` apenas para ele, com o motivo de que são necessários 10 de mel para a venda; o estoque de mel e as moedas não mudam e o mel continua sendo refinado normalmente
 
 ### Passagem do tempo
 
-Dado que a temporada está aberta (`apiario.iniciado`) e há 1 colmeia pronta, quando passam 5 segundos, então é coletado e produzido automaticamente +15 néctar e + 2 mel (`recurso.produzido`) estes recursos são distribuidos entre todos os jogadores
+Dado que a temporada está aberta (`apiario.iniciado`) e há 1 colmeia pronta, quando passam 5 segundos, então é coletado e produzido automaticamente +15 néctar e + 2 mel (`recurso.produzido`) e o servidor avisa todos os jogadores, sem ninguém clicar
 
 ### Disputa entre dois jogadores
 
