@@ -18,7 +18,7 @@
 
       <!-- Tela do apiário -->
       <main v-else>
-        <h1>🏘️ Apiário</h1>
+        <h1>🏘️ Apiário e mercado</h1>
         <p>
           {{ papel }}: <strong>{{ nome || "Anônimo" }}</strong> · Temporada:
           <strong>{{ estado.fase }}</strong>
@@ -29,7 +29,7 @@
 
         <section class="painel">
           <p>
-            🐝 Nectar: <strong>{{ estado.nectar }}</strong> (+{{ nectarPorMinuto
+            🐝 Néctar: <strong>{{ estado.nectar }}</strong> (+{{ nectarPorMinuto
             }}/min)
           </p>
           <p>
@@ -46,7 +46,7 @@
               :max="estado.limite"></progress>
           </p>
           <p>
-            🏠 Construções: {{ estado.concluidas }} concluídas, {{
+            🐝🍯 Colmeias: {{ estado.concluidas }} concluídas, {{
             estado.em_obra }} em obra
           </p>
         </section>
@@ -61,7 +61,7 @@
               🔨 Construir (custo {{ estado.custo }} nectar)
             </button>
             <button @click="vender">
-              💲 Vender Mel (custo {{ estado.mel_por_venda }} mel)
+              💲 Vender Mel (Vender {{ estado.mel_por_venda }} mel por 30 🪙)
             </button>
           </template>
         </section>

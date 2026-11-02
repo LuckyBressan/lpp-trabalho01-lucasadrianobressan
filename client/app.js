@@ -9,6 +9,7 @@ createApp({
       fase: "aguardando",
       nectar: 0,
       mel: 0,
+      moeda: 0,
       apicultores: 0,
       limite: 0,
       producao: 0,
@@ -16,6 +17,7 @@ createApp({
       intervalo: 0,
       tempo_obra: 0,
       custo: 0,
+      mel_por_venda: 0,
       concluidas: 0,
       em_obra: 0,
     });
@@ -60,7 +62,7 @@ createApp({
       const partes = Object.entries(resto).map(([k, v]) => k + ": " + v);
       if (e)
         partes.push(
-          "nectar " +
+          "néctar " +
             e.nectar +
             ", mel " +
             e.mel +
@@ -114,7 +116,7 @@ createApp({
 
       // ===== ESCUTAS (on): o cliente reage  aos FATOS do servidor =====
 
-      ouvir("estado.sincronizado", "guarda o estado e desenha a vila", (d) => {
+      ouvir("estado.sincronizado", "guarda o estado e desenha o apiário e mercado", (d) => {
         atualizar(d);
         jogo.mostrarEstado(d.estado);
       });
@@ -125,7 +127,7 @@ createApp({
         jogo.vilaIniciada();
       });
 
-      ouvir("colmeia.iniciada", "mostra o canteiro de obras", (d) => {
+      ouvir("colmeia.iniciada", "mostra a colmeia sendo construída", (d) => {
         atualizar(d);
         avisar(d.por + " iniciou uma obra");
         jogo.obraIniciada(d.estado);
@@ -145,7 +147,7 @@ createApp({
         },
       );
 
-      ouvir("colmeia.concluida", "transforma o canteiro em casa", (d) => {
+      ouvir("colmeia.concluida", "exibe a colmeia pronta", (d) => {
         atualizar(d);
         avisar("Obra de " + d.por + " concluída! A produção aumentou.", "ok");
         jogo.obraConcluida(d.estado);
@@ -153,7 +155,7 @@ createApp({
 
       ouvir(
         "apiario.encerrado",
-        "escurece a vila e bloqueia novas ações",
+        "escurece o apiário e bloqueia novas ações",
         (d) => {
           atualizar(d);
           avisar("Temporada encerrada.");
@@ -166,7 +168,7 @@ createApp({
         "vende o mel produzido e ganha moedas em troca",
         (d) => {
           atualizar(d);
-          avisar(d.por, " vendeu o mel estocado");
+          avisar(d.por + " vendeu o mel estocado", "ok");
           jogo.melVendido(d.estado)
         },
       );
