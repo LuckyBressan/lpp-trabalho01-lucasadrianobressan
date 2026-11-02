@@ -19,3 +19,6 @@
 
 ## Extras
 (Se houver.)
+
+## Melhorias futuras
+- Reescrever o cliente com TypeScript + Vue + Vite (componentes `.vue`, tipagem dos eventos e build), no lugar dos scripts carregados por CDN.
