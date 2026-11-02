@@ -37,6 +37,9 @@
             }}/min)
           </p>
           <p>
+            🪙 Moedas: <strong>{{ estado.moeda }}</strong>
+          </p>
+          <p>
             👷 Apicultores: {{ estado.apicultores }}/{{ estado.limite }}
             <progress
               :value="estado.apicultores"
@@ -53,9 +56,14 @@
             <button @click="abrirVila">Abrir temporada</button>
             <button @click="encerrarVila">Encerrar temporada</button>
           </template>
-          <button v-else @click="construir">
-            🔨 Construir (custo {{ estado.custo }} nectar)
-          </button>
+          <template v-else>
+            <button @click="construir">
+              🔨 Construir (custo {{ estado.custo }} nectar)
+            </button>
+            <button @click="vender">
+              💲 Vender Mel (custo {{ estado.mel_por_venda }} mel)
+            </button>
+          </template>
         </section>
 
         <ul class="avisos">

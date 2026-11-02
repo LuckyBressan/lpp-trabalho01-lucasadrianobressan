@@ -1,6 +1,7 @@
 import socketio
 
-from constantes import CUSTO_COLMEIA, INTERVALO_PRODUCAO, TEMPO_OBRA, LIMITE_APICULTORES, Fase, Papel
+from constantes import CUSTO_COLMEIA, INTERVALO_PRODUCAO, TEMPO_OBRA, LIMITE_APICULTORES, MEL_POR_VENDA, MOEDA_POR_VENDA
+from constantes import Fase, Papel
 
 from pathlib import Path
 
@@ -24,6 +25,7 @@ estado = {
     "fase": Fase.AGUARDANDO,  # aguardando -> aberta -> encerrada
     "nectar": 150,
     "mel": 0,
+    "moeda": 0,
     "apicultores": 0,  # ocupados agora
     "limite": LIMITE_APICULTORES,  # máximo de apicultores
     "producao": 10,  # nectar produzidos a cada INTERVALO
@@ -31,6 +33,8 @@ estado = {
     "intervalo": INTERVALO_PRODUCAO, # em segundos
     "tempo_obra": TEMPO_OBRA,
     "custo": CUSTO_COLMEIA,
+    "mel_por_venda": MEL_POR_VENDA,
+    "moeda_por_venda": MOEDA_POR_VENDA,
     "concluidas": 0,
     "em_obra": 0,
 }
@@ -84,6 +88,7 @@ async def abrir_apiario(sid, dados=None):
 @sio.on("colmeia.solicitada")
 async def construir(sid, dados=None):
     pedido = "colmeia.solicitada"
+
     # Valide TUDO antes de alterar o estado e sem await no meio:
     # assim, dois pedidos simultâneos são decididos um de cada vez.
     if estado["fase"] != "aberta":
@@ -94,6 +99,7 @@ async def construir(sid, dados=None):
         motivo = "Sem apicultor livre"
     else:
         motivo = None
+
     if motivo:
         await recusar(sid, motivo, pedido) # só quem pediu recebe
         return
@@ -103,6 +109,27 @@ async def construir(sid, dados=None):
     nome = jogadores[sid]["nome"]
     await sio.emit("colmeia.iniciada", fato(pedido, por=nome))
     sio.start_background_task(obra, nome)
+
+@sio.on("mel.venda_solicitada")
+async def venda_solicitada(sid, dados=None):
+    pedido = "mel.venda_solicitada"
+
+    if estado["fase"] != Fase.ABERTA:
+        motivo = "A temporada não está aberta"
+    elif estado["mel"] < MEL_POR_VENDA: # vendemos mel por lote
+        motivo = "Não há mel o suficiente para venda"
+    else:
+        motivo = None
+
+    if motivo:
+        await recusar(sid, motivo, pedido) # só quem pediu recebe
+        return
+
+    estado["mel"] -= MEL_POR_VENDA
+    estado["moeda"] += MOEDA_POR_VENDA
+
+    await sio.emit("mel.vendido", fato(pedido, por=jogadores[sid]["nome"]))
+
 
 
 async def producao():

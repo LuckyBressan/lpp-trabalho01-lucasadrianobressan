@@ -60,10 +60,14 @@ createApp({
       const partes = Object.entries(resto).map(([k, v]) => k + ": " + v);
       if (e)
         partes.push(
-          "nectar " + e.nectar +
-          ", mel " + e.mel +
-            ", apicultores " + e.apicultores +
-            "/" + e.limite,
+          "nectar " +
+            e.nectar +
+            ", mel " +
+            e.mel +
+            ", apicultores " +
+            e.apicultores +
+            "/" +
+            e.limite,
         );
       return partes.join(" · ");
     }
@@ -156,15 +160,31 @@ createApp({
           jogo.vilaEncerrada();
         },
       );
+
+      ouvir(
+        "mel.vendido",
+        "vende o mel produzido e ganha moedas em troca",
+        (d) => {
+          atualizar(d);
+          avisar(d.por, " vendeu o mel estocado");
+          jogo.melVendido(d.estado)
+        },
+      );
     }
 
     // ===== PEDIDOS (emit): o cliente PEDE algo ao servidor =====
     function abrirVila() {
       pedir("apiario.abertura_solicitada");
     }
+
     function construir() {
       pedir("colmeia.solicitada");
     }
+
+    function vender() {
+      pedir("mel.venda_solicitada");
+    }
+
     function encerrarVila() {
       pedir("apiario.encerramento_solicitado");
     }
@@ -183,6 +203,7 @@ createApp({
       entrar,
       abrirVila,
       construir,
+      vender,
       encerrarVila,
     };
   },

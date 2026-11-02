@@ -150,10 +150,25 @@ function criarJogo() {
         "#1b5e20",
       );
 
-      if(!estado.producao_mel) return
+      if (!estado.producao_mel) return;
 
       this.flutuar(
         "+" + estado.producao_mel + " 🍯",
+        this.acampamento.x,
+        this.acampamento.y + 10,
+        "#1b5e20",
+      );
+    }
+    melVendido(estado) {
+      this.flutuar(
+        "-" + estado.mel_por_venda + " 🍯",
+        this.acampamento.x,
+        this.acampamento.y,
+        "#b00020",
+      );
+
+      this.flutuar(
+        "+" + estado.moeda_por_venda + " 🪙",
         this.acampamento.x,
         this.acampamento.y + 10,
         "#1b5e20",
@@ -199,6 +214,7 @@ function criarJogo() {
     obraIniciada: (...a) => chamar("obraIniciada", ...a),
     obraConcluida: (...a) => chamar("obraConcluida", ...a),
     recursoProduzido: (...a) => chamar("recursoProduzido", ...a),
+    melVendido: (...a) => chamar("melVendido", ...a),
     recusado: (...a) => chamar("recusado", ...a),
     vilaEncerrada: (...a) => chamar("vilaEncerrada", ...a),
   };
