@@ -1,6 +1,6 @@
 import socketio
 
-from constantes import CUSTO_COLMEIA, INTERVALO_PRODUCAO, TEMPO_OBRA, Fase, Papel
+from constantes import CUSTO_COLMEIA, INTERVALO_PRODUCAO, TEMPO_OBRA, LIMITE_APICULTORES, Fase, Papel
 
 from pathlib import Path
 
@@ -22,11 +22,13 @@ app = socketio.ASGIApp(
 # @todo depois será trocado as chaves para corresponder ao meu tipo de vila
 estado = {
     "fase": Fase.AGUARDANDO,  # aguardando -> aberta -> encerrada
-    "toras": 150,
-    "trabalhadores": 0,  # ocupados agora
-    "limite": 2,  # máximo de apicultores
+    "nectar": 150,
+    "mel": 0,
+    "apicultores": 0,  # ocupados agora
+    "limite": LIMITE_APICULTORES,  # máximo de apicultores
     "producao": 10,  # nectar produzidos a cada INTERVALO
-    "intervalo": INTERVALO_PRODUCAO,
+    "producao_mel": 0, # mel produzido a cada INTERVALO, depende da construção de colmeia
+    "intervalo": INTERVALO_PRODUCAO, # em segundos
     "tempo_obra": TEMPO_OBRA,
     "custo": CUSTO_COLMEIA,
     "concluidas": 0,
@@ -65,9 +67,9 @@ async def recusar(sid, motivo, causa):
         to=sid
     )
 
-@sio.on("vila.abertura_solicitada")
-async def abrir_vila(sid, dados=None):
-    pedido = "vila.abertura_solicitada"
+@sio.on("apiario.abertura_solicitada")
+async def abrir_apiario(sid, dados=None):
+    pedido = "apiario.abertura_solicitada"
     if jogadores[sid]["papel"] != Papel.MESTRE:
         await recusar(sid, "Só o Mestre pode abrir a temporada", pedido)
         return
@@ -76,30 +78,30 @@ async def abrir_vila(sid, dados=None):
         return
     estado["fase"] = Fase.ABERTA
     sio.start_background_task(producao)
-    await sio.emit("vila.iniciada", fato(pedido))   # para todos
+    await sio.emit("apiario.iniciado", fato(pedido))   # para todos
 
 
-@sio.on("construcao.solicitada")
+@sio.on("colmeia.solicitada")
 async def construir(sid, dados=None):
-    pedido = "construcao.solicitada"
+    pedido = "colmeia.solicitada"
     # Valide TUDO antes de alterar o estado e sem await no meio:
     # assim, dois pedidos simultâneos são decididos um de cada vez.
     if estado["fase"] != "aberta":
         motivo = "A temporada não está aberta"
-    elif estado["toras"] < CUSTO_COLMEIA:
-        motivo = "Toras insuficientes"
-    elif estado["trabalhadores"] >= estado["limite"]:
-        motivo = "Sem trabalhador livre"
+    elif estado["nectar"] < CUSTO_COLMEIA:
+        motivo = "Nectar insuficiente"
+    elif estado["apicultores"] >= estado["limite"]:
+        motivo = "Sem apicultor livre"
     else:
         motivo = None
     if motivo:
         await recusar(sid, motivo, pedido) # só quem pediu recebe
         return
-    estado["toras"] -= CUSTO_COLMEIA
-    estado["trabalhadores"] += 1
+    estado["nectar"] -= CUSTO_COLMEIA
+    estado["apicultores"] += 1
     estado["em_obra"] += 1
     nome = jogadores[sid]["nome"]
-    await sio.emit("construcao.iniciada", fato(pedido, por=nome))
+    await sio.emit("colmeia.iniciada", fato(pedido, por=nome))
     sio.start_background_task(obra, nome)
 
 
@@ -108,7 +110,8 @@ async def producao():
         await sio.sleep(INTERVALO_PRODUCAO)
         if estado["fase"] != "aberta":
             break
-        estado["toras"] += estado["producao"]
+        estado["nectar"] += estado["producao"]
+        estado["mel"] += estado["producao_mel"]
         await sio.emit("recurso.produzido", fato("temporizador"))
 
 
@@ -116,17 +119,18 @@ async def obra(nome):
     await sio.sleep(TEMPO_OBRA)
     if estado["fase"] != "aberta":
         return
-    estado["trabalhadores"] -= 1
+    estado["apicultores"] -= 1
     estado["em_obra"] -= 1
     estado["concluidas"] += 1
     estado["producao"] += 5 # cada obra concluída aumenta a produção
-    causa = "construcao.iniciada (temporizador)"
-    await sio.emit("construcao.concluida", fato(causa, por=nome))
+    estado["producao_mel"] += 2 # a partir da primeira colmeia, mel começa a ser produzido (cada colmeia refina 2 mel)
+    causa = "colmeia.iniciada (temporizador)"
+    await sio.emit("colmeia.concluida", fato(causa, por=nome))
 
 
-@sio.on("vila.encerramento_solicitado")
+@sio.on("apiario.encerramento_solicitado")
 async def encerrar_vila(sid, dados=None):
-    pedido = "vila.encerramento_solicitado"
+    pedido = "apiario.encerramento_solicitado"
     if jogadores[sid]["papel"] != "mestre":
         await recusar(sid, "Só o Mestre pode encerrar a temporada", pedido)
         return
@@ -134,4 +138,4 @@ async def encerrar_vila(sid, dados=None):
         await recusar(sid, "A temporada não está aberta", pedido)
         return
     estado["fase"] = "encerrada"
-    await sio.emit("vila.encerrada", fato(pedido))
+    await sio.emit("apiario.encerrado", fato(pedido))

@@ -1,80 +1,108 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vila em Tempo Real</title>
-  <link rel="stylesheet" href="app.css">
-</head>
-<body>
-<div id="app">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vila em Tempo Real</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Tela de entrada -->
+      <section v-if="!conectado" class="cartao">
+        <h1>🏘️ Apiário em Tempo Real</h1>
+        <input v-model="nome" placeholder="Seu nome" />
+        <button @click="entrar('mestre')">Entrar como Mestre</button>
+        <button @click="entrar('jogador')">Entrar como Jogador</button>
+      </section>
 
-  <!-- Tela de entrada -->
-  <section v-if="!conectado" class="cartao">
-    <h1>🏘️ Vila em Tempo Real</h1>
-    <input v-model="nome" placeholder="Seu nome">
-    <button @click="entrar('mestre')">Entrar como Mestre</button>
-    <button @click="entrar('jogador')">Entrar como Jogador</button>
-  </section>
+      <!-- Tela do apiário -->
+      <main v-else>
+        <h1>🏘️ Apiário</h1>
+        <p>
+          {{ papel }}: <strong>{{ nome || "Anônimo" }}</strong> · Temporada:
+          <strong>{{ estado.fase }}</strong>
+        </p>
 
-  <!-- Tela da vila -->
-  <main v-else>
-    <h1>🏘️ Vila</h1>
-    <p>{{ papel }}: <strong>{{ nome || "Anônimo" }}</strong> · Temporada: <strong>{{ estado.fase }}</strong></p>
+        <!-- O apiário desenhado pelo Phaser aparece aqui -->
+        <div id="jogo"></div>
 
-    <!-- A vila desenhada pelo Phaser aparece aqui -->
-    <div id="jogo"></div>
+        <section class="painel">
+          <p>
+            🐝 Nectar: <strong>{{ estado.nectar }}</strong> (+{{ nectarPorMinuto
+            }}/min)
+          </p>
+          <p>
+            🍯 Mel: <strong>{{ estado.mel }}</strong> (+{{ melPorMinuto
+            }}/min)
+          </p>
+          <p>
+            👷 Apicultores: {{ estado.apicultores }}/{{ estado.limite }}
+            <progress
+              :value="estado.apicultores"
+              :max="estado.limite"></progress>
+          </p>
+          <p>
+            🏠 Construções: {{ estado.concluidas }} concluídas, {{
+            estado.em_obra }} em obra
+          </p>
+        </section>
 
-    <section class="painel">
-      <p>🪵 Toras: <strong>{{ estado.toras }}</strong> (+{{ porMinuto }}/min)</p>
-      <p>👷 Trabalhadores: {{ estado.trabalhadores }}/{{ estado.limite }}
-        <progress :value="estado.trabalhadores" :max="estado.limite"></progress></p>
-      <p>🏠 Construções: {{ estado.concluidas }} concluídas, {{ estado.em_obra }} em obra</p>
-    </section>
+        <section>
+          <template v-if="papel === 'mestre'">
+            <button @click="abrirVila">Abrir temporada</button>
+            <button @click="encerrarVila">Encerrar temporada</button>
+          </template>
+          <button v-else @click="construir">
+            🔨 Construir (custo {{ estado.custo }} nectar)
+          </button>
+        </section>
 
-    <section>
-      <template v-if="papel === 'mestre'">
-        <button @click="abrirVila">Abrir temporada</button>
-        <button @click="encerrarVila">Encerrar temporada</button>
-      </template>
-      <button v-else @click="construir">🔨 Construir (custo {{ estado.custo }} toras)</button>
-    </section>
+        <ul class="avisos">
+          <li v-for="a in avisos" :class="a.tipo">{{ a.texto }}</li>
+        </ul>
 
-    <ul class="avisos">
-      <li v-for="a in avisos" :class="a.tipo">{{ a.texto }}</li>
-    </ul>
+        <!-- PAINEL DE EVENTOS: mostra o paradigma funcionando (emit, on, causa e reação) -->
+        <section class="eventos">
+          <h2>📡 Painel de eventos</h2>
+          <p class="legenda">
+            <span class="badge emit">⬆ emit</span> este cliente PEDIU algo ao
+            servidor · <span class="badge on">⬇ on</span> este cliente ESCUTOU
+            um evento e reagiu
+          </p>
+          <label
+            ><input type="checkbox" v-model="ocultarProducao" /> ocultar
+            recurso.produzido (é muito frequente)</label
+          >
+          <ul>
+            <li v-for="e in eventosVisiveis" :class="e.tipo">
+              <span
+                class="badge"
+                :class="e.sentido === 'enviado' ? 'emit' : 'on'"
+                >{{ e.sentido === 'enviado' ? '⬆ emit' : '⬇ on' }}</span
+              >
+              <strong>{{ e.nome }}</strong>
+              <span class="hora">{{ e.hora }}</span>
+              <div v-if="e.causa" class="causa">causa: {{ e.causa }}</div>
+              <div v-if="e.dados" class="dados">dados: {{ e.dados }}</div>
+              <div v-if="e.reacao" class="reacao">↪ reação: {{ e.reacao }}</div>
+            </li>
+          </ul>
+          <p v-if="!eventosVisiveis.length" class="vazio">
+            Nenhum evento ainda. Faça uma ação.
+          </p>
+        </section>
+      </main>
 
-    <!-- PAINEL DE EVENTOS: mostra o paradigma funcionando (emit, on, causa e reação) -->
-    <section class="eventos">
-      <h2>📡 Painel de eventos</h2>
-      <p class="legenda">
-        <span class="badge emit">⬆ emit</span> este cliente PEDIU algo ao servidor ·
-        <span class="badge on">⬇ on</span> este cliente ESCUTOU um evento e reagiu
-      </p>
-      <!-- ETAPA 7 (dupla): cole aqui os contadores por evento -->
-      <label><input type="checkbox" v-model="ocultarProducao"> ocultar recurso.produzido (é muito frequente)</label>
-      <ul>
-        <li v-for="e in eventosVisiveis" :class="e.tipo">
-          <span class="badge" :class="e.sentido === 'enviado' ? 'emit' : 'on'">{{ e.sentido === 'enviado' ? '⬆ emit' : '⬇ on' }}</span>
-          <strong>{{ e.nome }}</strong> <span class="hora">{{ e.hora }}</span>
-          <div v-if="e.causa" class="causa">causa: {{ e.causa }}</div>
-          <div v-if="e.dados" class="dados">dados: {{ e.dados }}</div>
-          <div v-if="e.reacao" class="reacao">↪ reação: {{ e.reacao }}</div>
-        </li>
-      </ul>
-      <p v-if="!eventosVisiveis.length" class="vazio">Nenhum evento ainda. Faça uma ação.</p>
-    </section>
-  </main>
+      <footer>Desenvolvido por: Lucas Adriano dos Santos Bressan</footer>
+    </div>
 
-  <footer>Desenvolvido por: Lucas Adriano dos Santos Bressan</footer>
-</div>
-
-<script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
-<!-- Arquivo com a classe base para manipulação do phaser -->
-<script src="./vila.js"></script>
-<!-- Arquivo com as execuções da aplicação (handlers/listeners) -->
-<script src="./app.js"></script>
-</body>
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+    <!-- Arquivo com a classe base para manipulação do phaser -->
+    <script src="./vila.js"></script>
+    <!-- Arquivo com as execuções da aplicação (handlers/listeners) -->
+    <script src="./app.js"></script>
+  </body>
 </html>

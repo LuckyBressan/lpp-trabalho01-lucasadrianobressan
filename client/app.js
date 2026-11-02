@@ -7,10 +7,12 @@ createApp({
     const conectado = ref(false);
     const estado = reactive({
       fase: "aguardando",
-      toras: 0,
-      trabalhadores: 0,
+      nectar: 0,
+      mel: 0,
+      apicultores: 0,
       limite: 0,
       producao: 0,
+      producao_mel: 0,
       intervalo: 0,
       tempo_obra: 0,
       custo: 0,
@@ -29,9 +31,15 @@ createApp({
     const jogo = criarJogo(); // a vila desenhada (Phaser)
     let socket = null;
 
-    const porMinuto = computed(() =>
+    const nectarPorMinuto = computed(() =>
       estado.intervalo
         ? Math.round((estado.producao * 60) / estado.intervalo)
+        : 0,
+    );
+
+    const melPorMinuto = computed(() =>
+      estado.intervalo
+        ? Math.round((estado.producao_mel * 60) / estado.intervalo)
         : 0,
     );
 
@@ -52,12 +60,10 @@ createApp({
       const partes = Object.entries(resto).map(([k, v]) => k + ": " + v);
       if (e)
         partes.push(
-          "toras " +
-            e.toras +
-            ", trabalhadores " +
-            e.trabalhadores +
-            "/" +
-            e.limite,
+          "nectar " + e.nectar +
+          ", mel " + e.mel +
+            ", apicultores " + e.apicultores +
+            "/" + e.limite,
         );
       return partes.join(" · ");
     }
@@ -102,18 +108,20 @@ createApp({
         nextTick(() => jogo.iniciar("jogo")); // a vila desenhada começa quando a tela aparece
       });
 
+      // ===== ESCUTAS (on): o cliente reage  aos FATOS do servidor =====
+
       ouvir("estado.sincronizado", "guarda o estado e desenha a vila", (d) => {
         atualizar(d);
         jogo.mostrarEstado(d.estado);
       });
 
-      ouvir("vila.iniciada", "muda a faixa para temporada aberta", (d) => {
+      ouvir("apiario.iniciado", "muda a faixa para temporada aberta", (d) => {
         atualizar(d);
         avisar("A temporada começou!", "ok");
         jogo.vilaIniciada();
       });
 
-      ouvir("construcao.iniciada", "mostra o canteiro de obras", (d) => {
+      ouvir("colmeia.iniciada", "mostra o canteiro de obras", (d) => {
         atualizar(d);
         avisar(d.por + " iniciou uma obra");
         jogo.obraIniciada(d.estado);
@@ -124,37 +132,41 @@ createApp({
         jogo.recusado(d.motivo);
       });
 
-      ouvir("recurso.produzido", "atualiza as toras e mostra o +N", (d) => {
-        atualizar(d);
-        jogo.recursoProduzido(d.estado);
-      });
+      ouvir(
+        "recurso.produzido",
+        "atualiza o nectar e mel, mostra o +N",
+        (d) => {
+          atualizar(d);
+          jogo.recursoProduzido(d.estado);
+        },
+      );
 
-      ouvir("construcao.concluida", "transforma o canteiro em casa", (d) => {
+      ouvir("colmeia.concluida", "transforma o canteiro em casa", (d) => {
         atualizar(d);
         avisar("Obra de " + d.por + " concluída! A produção aumentou.", "ok");
         jogo.obraConcluida(d.estado);
       });
 
-      ouvir("vila.encerrada", "escurece a vila e bloqueia novas ações", (d) => {
-        atualizar(d);
-        avisar("Temporada encerrada.");
-        jogo.vilaEncerrada();
-      });
-
-      // ===== ESCUTAS (on): o cliente reage aos FATOS do servidor =====
-      // ouvir(evento, "o que o cliente faz ao receber", função)
+      ouvir(
+        "apiario.encerrado",
+        "escurece a vila e bloqueia novas ações",
+        (d) => {
+          atualizar(d);
+          avisar("Temporada encerrada.");
+          jogo.vilaEncerrada();
+        },
+      );
     }
 
     // ===== PEDIDOS (emit): o cliente PEDE algo ao servidor =====
-    // pedir(evento)
     function abrirVila() {
-      pedir("vila.abertura_solicitada");
+      pedir("apiario.abertura_solicitada");
     }
     function construir() {
-      pedir("construcao.solicitada");
+      pedir("colmeia.solicitada");
     }
     function encerrarVila() {
-      pedir("vila.encerramento_solicitado");
+      pedir("apiario.encerramento_solicitado");
     }
 
     return {
@@ -166,7 +178,8 @@ createApp({
       eventosVisiveis,
       contadores,
       ocultarProducao,
-      porMinuto,
+      nectarPorMinuto,
+      melPorMinuto,
       entrar,
       abrirVila,
       construir,
