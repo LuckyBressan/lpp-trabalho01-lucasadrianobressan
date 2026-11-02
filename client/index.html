@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vila em Tempo Real</title>
+    <title>Apiário em Tempo Real</title>
     <link rel="stylesheet" href="app.css" />
   </head>
   <body>
@@ -60,7 +60,7 @@
               🔨 Construir (custo {{ estado.custo }} néctar)
             </button>
             <button @click="vender">
-              💲 Vender Mel (Vender {{ estado.mel_por_venda }} mel por 30 🪙)
+              💲 Vender {{ estado.mel_por_venda }} mel por {{ estado.moeda_por_venda }} 🪙
             </button>
           </template>
         </section>
@@ -77,6 +77,10 @@
             servidor · <span class="badge on">⬇ on</span> este cliente ESCUTOU
             um evento e reagiu
           </p>
+          <!-- Contadores por evento (Etapa 7): quantas vezes cada evento já ocorreu neste cliente -->
+          <div class="contadores">
+            <span v-for="(n, nome) in contadores" class="chip">{{ nome }} ×{{ n }}</span>
+          </div>
           <label
             ><input type="checkbox" v-model="ocultarProducao" /> ocultar
             recurso.produzido (é muito frequente)</label
