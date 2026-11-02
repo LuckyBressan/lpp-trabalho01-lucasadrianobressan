@@ -1,13 +1,16 @@
-ASSETS DA VILA
-==============
+ASSETS DO APIÁRIO
+=================
 
-Arte original criada para este trabalho (uso livre nos trabalhos da disciplina).
+Base: arte original do kit da disciplina (peças 0 a 63 do tileset, uso livre nos
+trabalhos da disciplina). Peças 64 a 87, sprites da colmeia e o mapa do apiário:
+arte própria deste trabalho, gerada com auxílio de IA (Claude).
 
-tileset-vila.png   peças do cenário, 16x16 px (64 peças, 16 por linha)
-sprites-vila.png   casa (quadro 0) e canteiro de obras (quadro 1), 32x32 px
+tileset-vila.png   peças do cenário, 16x16 px (96 espaços, 16 por linha; 0-63 do kit, 64-87 novas)
+sprites-vila.png   colmeia pronta (quadro 0) e colmeia em montagem (quadro 1), 32x32 px
 vila.json          o mapa (formato Tiled), 18 x 9 peças. Abra no Tiled para editar.
 
 PEÇAS DO TILESET (número mostrado no Tiled)
+  Do kit original:
   0, 1, 2     grama (lisa, com tufos, com flores)
   8 a 23      CAMINHO. Número = 8 + soma dos lados em que há mais caminho:
               Norte=1, Leste=2, Sul=4, Oeste=8
@@ -18,8 +21,19 @@ PEÇAS DO TILESET (número mostrado no Tiled)
   40 árvore   41 arbusto   42 pedra   43 toco
   44 toras    45 horta de cenoura   46 horta de trigo   47 cerca
 
+  Novas (apiário e mercado):
+  64 lavanda          65 flores amarelas     66 flores rosas      67 girassol
+  68 colmeia de palha 69 pote de mel         70 caixote com potes
+  71 72 73  toldo amarelo (esquerda, meio, direita)
+  74 75 76  balcão da banca amarela (esquerda, meio, direita)
+  77 78 79  toldo vermelho (esquerda, meio, direita)
+  80 81 82  balcão da banca vermelha (esquerda, meio, direita)
+  83 placa "MEL"      84 saco de moedas      85 piso de pedra (chão)
+  86 assoalho de madeira (chão)              87 barril
+
 CAMADAS DO MAPA
-  chao         grama, caminho e água (todas as células preenchidas)
-  decoracao    árvores, pedras, hortas, cerca (células vazias onde não há nada)
-  pontos       (objetos) lote1 a lote6 = onde aparecem obras e casas
-                          acampamento = de onde sobem os "+10"
+  chao         grama, caminho, água e piso do mercado (todas as células preenchidas)
+  decoracao    flores, árvores, colmeias de palha, bancas, cerca (vazio onde não há nada)
+  pontos       (objetos) lote1 a lote6 = onde aparecem as colmeias
+                          acampamento = de onde sobem o "+néctar" e o "+mel"
+                          mercado     = de onde sobem o "-mel" e o "+moedas" da venda

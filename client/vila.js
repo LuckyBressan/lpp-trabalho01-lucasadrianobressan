@@ -33,6 +33,7 @@ function criarJogo() {
         .filter((p) => p.name.startsWith("lote"))
         .sort((a, b) => a.name.localeCompare(b.name, "pt", { numeric: true }));
       this.acampamento = pontos.find((p) => p.name === "acampamento");
+      this.mercado = pontos.find((p) => p.name === "mercado");
 
       // 3) câmera: o mapa é pequeno (pixel art), então damos zoom 2x
       this.cameras.main
@@ -100,7 +101,7 @@ function criarJogo() {
         targets: t,
         y: y - 16,
         alpha: 0,
-        duration: 1400,
+        duration: 2400,
         onComplete: () => t.destroy(),
       });
     }
@@ -162,15 +163,15 @@ function criarJogo() {
     melVendido(estado) {
       this.flutuar(
         "-" + estado.mel_por_venda + " 🍯",
-        this.acampamento.x,
-        this.acampamento.y,
+        this.mercado.x,
+        this.mercado.y,
         "#b00020",
       );
 
       this.flutuar(
         "+" + estado.moeda_por_venda + " 🪙",
-        this.acampamento.x,
-        this.acampamento.y + 10,
+        this.mercado.x,
+        this.mercado.y + 10,
         "#1b5e20",
       );
     }
